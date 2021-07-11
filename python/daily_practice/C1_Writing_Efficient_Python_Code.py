@@ -110,3 +110,4 @@ star_wars_heroes_np = get_publisher_heroes_np(heroes, publishers, 'George Lucas'
 
 print(star_wars_heroes_np)
 
+print(star_wars_heroes_np)

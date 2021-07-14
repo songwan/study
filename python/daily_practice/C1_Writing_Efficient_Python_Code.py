@@ -112,3 +112,6 @@ print(star_wars_heroes_np)
 print(star_wars_heroes_np)
 print(star_wars_heroes_np)
 print(star_wars_heroes_np)
+print(star_wars_heroes_np)
+print(star_wars_heroes_np)
+

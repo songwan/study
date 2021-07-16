@@ -205,3 +205,46 @@ lmer_coef %>%
     theme_bw() +
     ylab("Coefficient estimate and 95% CI") +
     xlab("Regression coefficient")
+
+# Build a lmer with State as a random effect.
+birth_rate_state_model <- lmer(BirthRate ~ (1 | State),
+                            data = county_births_data)
+# Plot the predicted values from the model on top of the plot shown during the video.
+county_births_data$birthPredictState <-
+	predict(birth_rate_state_model, county_births_data)
+ggplot() + 
+    theme_minimal() +
+    geom_point(data = county_births_data,
+               aes(x = TotalPopulation, y = BirthRate)) + 
+    geom_point(data = county_births_data,
+               aes(x = TotalPopulation, y = birthPredictState),
+               color = 'blue', alpha = 0.5) 
+
+# Include the AverageAgeofMother as a fixed effect within the lmer and state as a random effect
+age_mother_model <- lmer(BirthRate ~ AverageAgeofMother + (1 | State),
+                       county_births_data)
+summary(age_mother_model)
+
+# Include the AverageAgeofMother as fixed-effect and State as a random-effect
+model_a <- lmer(BirthRate ~ AverageAgeofMother + (1|State), county_births_data)
+tidy(model_a)
+
+# Include the AverageAgeofMother as fixed-effect and LogTotalPop and State as random-effects
+model_b <- lmer(BirthRate ~ AverageAgeofMother + (LogTotalPop|State), county_births_data)
+tidy(model_b)
+# -> perhaps the log(total_pop) changes the birth rate of a country and varies by state
+
+# Include AverageAgeofMother as fixed-effect and LogTotalPop and State as uncorrelated random-effects
+model_c <- lmer(BirthRate ~ AverageAgeofMother + (LogTotalPop||State),
+                county_births_data)
+# Compare outputs of both models 
+summary(model_b)
+summary(model_c)
+
+# Construct a lmer() 
+out <- lmer(BirthRate ~ AverageAgeofMother + (AverageAgeofMother|State),
+            data = county_births_data)
+
+
+# Look at the summary
+summary(out)

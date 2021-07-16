@@ -109,3 +109,99 @@ lm(mathgain ~ classid + mathkind -1, data=school_3_data)
 
 # Build a multiple regression with interaction
 lm(mathgain ~ classid*mathkind -1, data=school_3_data)
+
+# Build a liner model including class as fixed-effect model
+lm_out <- lm(mathgain ~ classid + mathkind, data = student_data)
+
+# Build a mixed-effect model including class id as a random-effect
+lmer_out <- lmer(mathgain ~ mathkind + (1 | classid), data = student_data)
+
+# Extract out the slope estimate for mathkind
+tidy(lm_out) %>%
+    filter(term == "mathkind")
+    
+tidy(lmer_out) %>%
+    filter(term == "mathkind")
+
+# Re-run the models to load their outputs
+lm_out <- lm(mathgain ~ classid + mathkind, data = student_data)
+lmer_out <- lmer(mathgain ~ mathkind + (1 | classid), data = student_data)
+
+# Add the predictions to the original data
+student_data_subset <-
+    student_data %>%
+    mutate(lm_predict = predict(lm_out),
+           lmer_predict = predict(lmer_out)) %>%
+    filter(schoolid == "1")
+
+# Plot the predicted values
+ggplot(student_data_subset,
+       aes(x = mathkind, y = mathgain, color = classid)) +
+    geom_point() +
+    geom_line(aes(x = mathkind, y = lm_predict)) +
+    geom_line(aes(x = mathkind, y = lmer_predict), linetype = 'dashed') +
+    xlab("Kindergarten math score") +
+    ylab("Math gain later in school") +
+    theme_bw() +
+    scale_color_manual("Class ID", values = c("red", "blue"))
+
+
+# Rescale mathkind to make the model more stable
+student_data <-
+	student_data %>%
+    mutate(mathkind_scaled = scale(mathkind))
+
+# Build lmer models
+lmer_intercept <- lmer(mathgain ~ mathkind_scaled + (1 | classid), data = student_data)
+lmer_slope <- lmer(mathgain ~ (mathkind_scaled | classid), data = student_data)
+
+# Rescale mathkind to make the model more stable
+student_data <-
+	student_data %>%
+    mutate(mathkind_scaled = scale(mathkind))
+
+# Re-run the models to load their outputs
+lmer_intercept <- lmer(mathgain ~ mathkind_scaled + (1 | classid),
+                       data = student_data)
+lmer_slope     <- lmer(mathgain ~ (mathkind_scaled | classid),
+                       data = student_data)
+
+# Add the predictions to the original data
+student_data_subset <-
+    student_data %>%
+    mutate(lmer_intercept = predict(lmer_intercept),
+           lmer_slope = predict(lmer_slope)) %>%
+    filter(schoolid == "1")
+
+# Plot the predicted values
+ggplot(student_data_subset,
+       aes(x = mathkind_scaled, y = mathgain, color = classid)) +
+    geom_point() +
+    geom_line(aes(x = mathkind_scaled, y = lmer_intercept)) +
+    geom_line(aes(x = mathkind_scaled, y = lmer_slope), linetype = 'dashed') +
+    theme_bw() +
+    scale_color_manual("Class ID", values = c("red", "blue"))
+
+# Build the model
+lmer_classroom = lmer(mathgain ~ mathknow + mathprep + sex + mathkind + ses + (1|classid),
+                      data = student_data)
+
+# Print the model's output
+print(lmer_classroom)
+
+# Extract coefficents
+lmer_coef <-
+    tidy(lmer_classroom, conf.int = TRUE)
+
+# Plot results
+lmer_coef %>%
+    filter(effect == "fixed" & term != "(Intercept)") %>%
+    ggplot(., aes(x = term, y = estimate,
+                  ymin = conf.low, ymax = conf.high)) +
+    geom_hline(yintercept = 0, color = 'red') + 
+    geom_point() +
+    geom_linerange() +
+    coord_flip() +
+    theme_bw() +
+    ylab("Coefficient estimate and 95% CI") +
+    xlab("Regression coefficient")

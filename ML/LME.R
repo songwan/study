@@ -248,3 +248,5 @@ out <- lmer(BirthRate ~ AverageAgeofMother + (AverageAgeofMother|State),
 
 # Look at the summary
 summary(out)
+summary(out)
+summary(out)

@@ -248,5 +248,57 @@ out <- lmer(BirthRate ~ AverageAgeofMother + (AverageAgeofMother|State),
 
 # Look at the summary
 summary(out)
-summary(out)
-summary(out)
+
+# Fit a glm using data in a long format
+fit_long <- glm(mortality ~ dose, data = df_long, 
+                family = "binomial")
+summary(fit_long)
+
+# Fit a glm using data in a short format with two columns
+fit_short <- glm(cbind(mortality, survival) ~ dose, 
+                data = df_short, family = "binomial")
+summary(fit_short)
+
+# Fit a glm using data in a short format with weights
+fit_short_p <- glm(mortalityP  ~ dose , data = df_short, 
+                   weights = nReps , family = "binomial")
+summary(fit_short_p)
+
+# Fit the linear model
+summary(lm(y~x))
+
+# Fit the generalized linear model
+summary(glm(y~x, family = "poisson"))
+
+# Plot the data using jittered points and the default stat_smooth
+ggplot(data = df_long, aes(x = dose, y = mortality)) + 
+	geom_jitter(height = 0.05, width = 0.1) +
+	stat_smooth(fill = 'pink', color = 'red') 
+
+# Fit glmOut and look at its coefficient estimates 
+glm_out <- glm(mortality ~ dose + replicate - 1, 
+              family = "binomial", data = df)
+coef(glm_out)
+
+# Load lmerTest
+library(lmerTest)
+
+# Fit glmerOut and look at its coefficient estimates 
+glmer_out <- glmer(mortality ~ dose + (1|replicate), 
+                   family = "binomial", data = df)
+coef(glmer_out)
+
+# Load lmerTest
+library(lmerTest)
+
+# Fit the model and look at its summary 
+model_out <- glmer(cbind(Purchases, Pass) ~ friend + ranking + (1|city), family='binomial', data=all_data)
+summary(model_out) 
+
+# Run the code to see how to calculate odds ratios
+summary(model_out) 
+exp(fixef(model_out))
+exp(confint(model_out))
+
+# Create the tidied output
+tidy(model_out, conf.int = T, exponentiate = T)

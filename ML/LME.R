@@ -302,3 +302,43 @@ exp(confint(model_out))
 
 # Create the tidied output
 tidy(model_out, conf.int = T, exponentiate = T)
+
+# Set the seed to be 345659
+set.seed(345659)
+
+# Model 10 individuals 
+n_ind <- 10
+
+# simulate before with mean of 0 and sd of 0.5
+before <- rnorm(n_ind, mean = 0, sd = 0.5)
+# simulate after with mean effect of 4.5 and standard devation of 5
+after  <- before + rnorm(n_ind, mean = 4.5, sd = 5)
+
+# Run a standard, non-paired t-test
+t.test(x = before, y =after, paired = F)
+
+# Run a standard, paired t-test
+t.test(x = before, y =after, paired = T)
+
+library(lmerTest)
+
+# Run the code from the previous step
+dat <- data.frame(y = c(before, after), 
+                  trial = rep(c("before", "after"), each = n_ind),
+                  ind = rep(letters[1:n_ind], times = 2))
+
+# Run a standard, paired t-test
+t.test(x=before, y=after, data=dat, paired=T)
+
+# Run a lmer and save it as lmer_out
+lmer_out <- lmer(y ~ trial + (1|ind), data=dat)
+
+# Look at the summary() of lmer_out
+summary(lmer_out)
+
+# Add an x and y label to the plot and change the theme to be "minimal"
+ggplot(sleep, aes(x = group, y = extra, group = ID)) +
+  geom_line() +
+  xlab(label = "Drug") +
+  ylab(label = "Extra sleep") + 
+  theme_minimal()

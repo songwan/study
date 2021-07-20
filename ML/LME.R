@@ -342,3 +342,38 @@ ggplot(sleep, aes(x = group, y = extra, group = ID)) +
   xlab(label = "Drug") +
   ylab(label = "Extra sleep") + 
   theme_minimal()
+
+  # Add a Poisson trend line for each county
+ggplot(data = hate, aes(x = Year, y = TotalIncidents, group = County)) +
+    geom_line() +
+	geom_smooth(method = "glm", method.args = c("poisson"), se = FALSE)
+
+# load the edit you previously made
+hate$Year2 <- hate$Year - min(hate$Year)
+
+# build a glmer with County as a random-effect intercept and Year2 as both a fixed- and random-effect slope
+glmer_out <- glmer(TotalIncidents ~ Year2 + (Year2|County), data = hate, family = "poisson")
+
+# Extract out the fixed-effect slope for Year2
+Year2_slope <- fixef(glmer_out)['Year2']
+
+# Extract out the random-effect slopes for county
+county_slope <- ranef(glmer_out)$County
+
+# Create a new column for the slope
+county_slope$slope <- county_slope$Year2 + Year2_slope
+
+# Use the row names to create a county name column
+county_slope$county <- rownames(county_slope)
+
+# Create an ordered county-level factor based upon slope values
+county_slope$county_plot <- factor(county_slope$county, 
+                                   levels = county_slope$county[order(county_slope$slope)])
+
+# Now plot the results
+ggplot(data = county_slope, aes(x = county_plot, y = slope)) + 
+	geom_point() +
+    coord_flip() + 
+	theme_bw() + 
+	ylab("Change in hate crimes per year")  +
+    xlab("County")

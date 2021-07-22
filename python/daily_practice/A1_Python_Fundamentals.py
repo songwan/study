@@ -190,3 +190,5 @@ for value in get_lengths(lannister):
 
 
 # Recap Part A
+
+# Recap Part B

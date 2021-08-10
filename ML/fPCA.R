@@ -5,3 +5,5 @@
 # Learn R PCA package
 
 # Learn fPCA
+
+# Finish fPCA concepts
